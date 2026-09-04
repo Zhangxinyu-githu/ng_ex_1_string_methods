@@ -4,7 +4,47 @@ encoded = """
    [2::OG::ok] | [4::XLI::ok] | [7::WT7::bad] |
    [6::GZ_7_VS::ok] | [99::IGNORE_ME::bad] | %%noise%%
 """
+chunks = encoded.split('|')
 
+fragments = []
+
+for chunk in chunks:
+    if '[' in chunk and ']' in chunk:
+        start = chunk.find('[') + 1
+        end = chunk.find(']')
+        content = chunk[start:end]
+        fragments.append(content)
+
+messages = {}
+
+for item in fragments:
+    parts = item.split('::')
+    if len(parts) == 3:
+        num_str = parts[0]
+        text = parts[1]
+        status = parts[2]
+        
+        if status == 'ok':
+            num = int(num_str)
+            
+            decoded_text = ""
+            for char in text:
+                if char == '_' or char.isdigit():
+                    decoded_text += char
+                else:
+                    new_char_code = ord(char) - num
+                    decoded_text += chr(new_char_code)
+         
+            messages[num] = decoded_text
+
+
+final_message_list = []
+for key in sorted(messages):
+    final_message_list.append(messages[key])
+
+final_message = " ".join(final_message_list)
+
+print(final_message)
 ###############################################################
 """
 1. Part of the real message is inside the the '[' and ']' brackets.
